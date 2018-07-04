@@ -1,0 +1,4 @@
+{
+	"TcpSrvAddr":":8876",
+	"HttpSrvAddr":":8888"
+}
