@@ -24,3 +24,8 @@ type RTP struct {
 	LastFrameInterval  uint16
 	Data               []byte
 }
+
+type Frame struct {
+	SIM  string
+	Data []byte
+}

@@ -9,10 +9,16 @@ type udp_srv_cnf struct {
 	Addr string
 }
 
+type tcp_srv_cnf struct {
+	Addr      string
+	ReadLimit int
+}
+
 type Conf struct {
 	AppID string
 	UUID  string
 	UDP   *udp_srv_cnf
+	TCP   *tcp_srv_cnf
 }
 
 func ReadConfig(confpath string) (*Conf, error) {

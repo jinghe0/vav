@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/giskook/vav/conf"
-	"github.com/giskook/vav/socket_server"
+	"github.com/giskook/vav/socket_server/tcp"
 	"log"
 	"os"
 	"os/signal"
