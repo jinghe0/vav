@@ -31,7 +31,6 @@ func (ss *SocketServer) ReadPacket(conn *net.TCPConn) (gotcp.Packet, error) {
 		log.Println("<ERR> peer error\n")
 		return nil, ErrPeerClosed
 	}
-	log.Printf("<IN>  %x  %s\n", conn, string(data[0:length]))
 
 	return &Raw{
 		raw: data[0:length],

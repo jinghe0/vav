@@ -13,11 +13,11 @@ func Parse(p []byte) *base.RTP {
 	sim := base.ReadBcdString(r, 6)
 	logical_channel := base.ReadByte(r)
 	type_seg := base.ReadByte(r)
-	t := (type_seg & 0xf0) >> 4
+	t := type_seg & 0xf0
 	seg := (type_seg & 0x0f)
-	timestamp := uint8(0)
+	timestamp := uint64(0)
 	if t != base.RTP_TYPE_RAW {
-		timestamp = base.ReadByte(r)
+		timestamp = base.ReadQuaWord(r)
 	}
 	var last_i_frame_interval, last_frame_interval uint16 = 0, 0
 	if t == base.RTP_TYPE_VIDEOI ||

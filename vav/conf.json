@@ -2,5 +2,9 @@
 	"UUID":"dasm",
 	"UDP":{
 		"Addr":":8875"
+	},
+	"TCP":{
+		"Addr":":8875",
+		"ReadLimit":180
 	}
 }

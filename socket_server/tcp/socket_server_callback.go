@@ -34,7 +34,6 @@ func (ss *SocketServer) OnMessage(c *gotcp.Conn, p gotcp.Packet) bool {
 	connection.RecvBuffer.Write(p.Serialize())
 	for {
 		protocol_id, protocol_length := protocol.CheckProtocol(connection.RecvBuffer)
-		log.Printf("<INF> protocol_id %x, protocol_length %d\n", protocol_id, protocol_length)
 		buf := make([]byte, protocol_length)
 		connection.RecvBuffer.Read(buf)
 		switch protocol_id {
@@ -44,7 +43,32 @@ func (ss *SocketServer) OnMessage(c *gotcp.Conn, p gotcp.Packet) bool {
 			return true
 		case protocol.PROTOCOL_RTP:
 			rtp := protocol.Parse(buf)
-			log.Printf("<INF> seg %d\n", rtp.Segment)
+			log.Printf("<INF> sim %s chan %s type %x, seg %d  len %d timestamp %d lastI %d lastF %d \n", rtp.SIM, rtp.LogicalChannel, rtp.Type, rtp.Segment, len(rtp.Data), rtp.Timestamp, rtp.LastIFrameInterval, rtp.LastFrameInterval)
+			if rtp.Segment > base.RTP_SEGMENT_COMPLETE {
+				connection.Buffer = append(connection.Buffer, rtp.Data...)
+			}
+			if rtp.Segment == base.RTP_SEGMENT_LAST {
+				ss.ChanFrame <- &base.Frame{
+					SIM:                rtp.SIM,
+					LogicalChannel:     rtp.LogicalChannel,
+					Type:               rtp.Type,
+					Timestamp:          rtp.Timestamp,
+					LastIFrameInterval: rtp.LastIFrameInterval,
+					LastFrameInterval:  rtp.LastFrameInterval,
+					Data:               connection.Buffer,
+				}
+				connection.Buffer = nil
+			} else if rtp.Segment == base.RTP_SEGMENT_COMPLETE {
+				ss.ChanFrame <- &base.Frame{
+					SIM:                rtp.SIM,
+					LogicalChannel:     rtp.LogicalChannel,
+					Type:               rtp.Type,
+					Timestamp:          rtp.Timestamp,
+					LastIFrameInterval: rtp.LastIFrameInterval,
+					LastFrameInterval:  rtp.LastFrameInterval,
+					Data:               rtp.Data,
+				}
+			}
 		}
 	}
 }

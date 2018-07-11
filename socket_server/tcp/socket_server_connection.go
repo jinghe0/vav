@@ -24,6 +24,7 @@ type Connection struct {
 	RecvBuffer *bytes.Buffer
 	exit       chan struct{}
 	status     uint8
+	Buffer     []byte
 }
 
 func NewConnection(c *gotcp.Conn, conf *ConnConf) *Connection {
