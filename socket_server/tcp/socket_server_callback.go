@@ -2,10 +2,12 @@ package socket_server
 
 import (
 	"github.com/gansidui/gotcp"
+	"github.com/giskook/vav/base"
 	"github.com/giskook/vav/protocol"
 	"log"
 	//"runtime/debug"
 	"sync/atomic"
+	//"time"
 )
 
 func (ss *SocketServer) OnConnect(c *gotcp.Conn) bool {
@@ -43,11 +45,12 @@ func (ss *SocketServer) OnMessage(c *gotcp.Conn, p gotcp.Packet) bool {
 			return true
 		case protocol.PROTOCOL_RTP:
 			rtp := protocol.Parse(buf)
-			log.Printf("<INF> sim %s chan %s type %x, seg %d  len %d timestamp %d lastI %d lastF %d \n", rtp.SIM, rtp.LogicalChannel, rtp.Type, rtp.Segment, len(rtp.Data), rtp.Timestamp, rtp.LastIFrameInterval, rtp.LastFrameInterval)
+			//		log.Printf("<INF> sim %s chan %s type %x, seg %d  len %d timestamp %d lastI %d lastF %d \n", rtp.SIM, rtp.LogicalChannel, rtp.Type, rtp.Segment, len(rtp.Data), rtp.Timestamp, rtp.LastIFrameInterval, rtp.LastFrameInterval)
 			if rtp.Segment > base.RTP_SEGMENT_COMPLETE {
 				connection.Buffer = append(connection.Buffer, rtp.Data...)
 			}
-			if rtp.Segment == base.RTP_SEGMENT_LAST {
+			if rtp.Segment == base.RTP_SEGMENT_LAST &&
+				rtp.Type < base.RTP_TYPE_AUDIO {
 				ss.ChanFrame <- &base.Frame{
 					SIM:                rtp.SIM,
 					LogicalChannel:     rtp.LogicalChannel,
@@ -57,8 +60,10 @@ func (ss *SocketServer) OnMessage(c *gotcp.Conn, p gotcp.Packet) bool {
 					LastFrameInterval:  rtp.LastFrameInterval,
 					Data:               connection.Buffer,
 				}
-				connection.Buffer = nil
-			} else if rtp.Segment == base.RTP_SEGMENT_COMPLETE {
+				//			time.Sleep(time.Duration(rtp.LastFrameInterval) * time.Millisecond)
+				connection.Buffer = connection.Buffer[:0]
+			} else if rtp.Segment == base.RTP_SEGMENT_COMPLETE &&
+				rtp.Type < base.RTP_TYPE_AUDIO {
 				ss.ChanFrame <- &base.Frame{
 					SIM:                rtp.SIM,
 					LogicalChannel:     rtp.LogicalChannel,
@@ -68,6 +73,7 @@ func (ss *SocketServer) OnMessage(c *gotcp.Conn, p gotcp.Packet) bool {
 					LastFrameInterval:  rtp.LastFrameInterval,
 					Data:               rtp.Data,
 				}
+				//time.Sleep(time.Duration(rtp.LastFrameInterval) * time.Millisecond)
 			}
 		}
 	}

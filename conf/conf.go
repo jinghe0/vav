@@ -14,11 +14,16 @@ type tcp_srv_cnf struct {
 	ReadLimit int
 }
 
+type booster_cnf struct {
+	WorkerNum int
+}
+
 type Conf struct {
-	AppID string
-	UUID  string
-	UDP   *udp_srv_cnf
-	TCP   *tcp_srv_cnf
+	AppID   string
+	UUID    string
+	UDP     *udp_srv_cnf
+	TCP     *tcp_srv_cnf
+	Booster *booster_cnf
 }
 
 func ReadConfig(confpath string) (*Conf, error) {

@@ -6,5 +6,8 @@
 	"TCP":{
 		"Addr":":8875",
 		"ReadLimit":180
+	},
+	"Booster":{
+		"WorkerNum":1
 	}
 }

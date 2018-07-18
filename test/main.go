@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/giskook/vav/booster"
-	"github.com/giskook/vav/conf"
 	"log"
 	"os"
+	"os/exec"
 	"os/signal"
 	"runtime"
 	"syscall"
@@ -13,11 +12,10 @@ import (
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	conf, err := conf.ReadConfig("./conf.json")
-	checkError(err)
-	booster := booster.NewBooster(conf)
-	booster.Start()
 	// catchs system signal
+	cmd := exec.Command("/usr/local/bin/ffmpeg", "-re", "-i", "./echo-hereweare.mp4", "-vcodec", "copy", "-acodec", "copy", "-b:v", "800k", "-b:a", "32k", "-f", "flv", "rtmp://127.0.0.1:8080/myapp")
+	err := cmd.Run()
+	checkError(err)
 	chSig := make(chan os.Signal)
 	signal.Notify(chSig, syscall.SIGINT, syscall.SIGTERM)
 	fmt.Println("Signal: ", <-chSig)
